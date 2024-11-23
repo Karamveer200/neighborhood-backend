@@ -1,0 +1,15 @@
+runtime: nodejs20
+service: neighborhood-mongo-be
+
+env_variables:
+  NODE_ENV: production
+  PORT: 8080
+  MONGO_URI: "MONGO_URI"
+  JWT_SECRET: "JWT_SECRET"
+
+handlers:
+  # Serve API routes using the Node.js app
+  - url: /api/.*
+    script: auto
+    secure: always
+    redirect_http_response_code: 301
