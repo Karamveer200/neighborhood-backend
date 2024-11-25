@@ -74,12 +74,14 @@ router.put(
 
       if (user) {
         user = await User.findOneAndUpdate(
-          { user: req.user.id },
+          { _id: user._id },
           {
             $set: updatedFields,
           },
           { new: true }
         );
+
+        await user.save();
 
         const { password, ...restUser } = user._doc;
 
