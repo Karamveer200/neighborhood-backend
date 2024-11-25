@@ -1,10 +1,11 @@
 const mongoose = require("mongoose");
 
-const NeighborHoodSchema = mongoose.Schema({
+const NeighbourhoodSchema = mongoose.Schema({
   name: { type: String },
   kind: { type: String },
-  admin_id: { type: String },
+  adminId: { type: String },
   description: { type: String },
+  neighbourCode:{ type: String },
 
   geoFence: [
     {
@@ -20,7 +21,7 @@ const NeighborHoodSchema = mongoose.Schema({
   ],
 });
 
-module.exports = NeighborHoodModel = mongoose.model(
-  "neighborhood",
-  NeighborHoodSchema
+module.exports = NeighbourhoodModel = mongoose.model(
+  "neighbourhood",
+  NeighbourhoodSchema
 );

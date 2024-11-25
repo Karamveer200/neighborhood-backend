@@ -6,7 +6,7 @@ const PostSchema = mongoose.Schema({
   lat: { type: Number },
   long: { type: Number },
   publisherId: { type: String },
-  neighbourhoodId: { type: String },
+  neighbourCode: { type: String },
   date: { type: String },
   time: { type: String },
   severity: { type: String },

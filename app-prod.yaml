@@ -4,6 +4,8 @@ service: neighborhood-mongo-be
 env_variables:
   NODE_ENV: production
   PORT: 8080
+  MONGO_URI: "MONGO_URI"
+  JWT_SECRET: "JWT_SECRET"
 
 handlers:
   # Serve API routes using the Node.js app

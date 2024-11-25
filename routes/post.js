@@ -17,6 +17,24 @@ router.get("/list", async (_, res) => {
   }
 });
 
+// Get all posts by neighbourCode
+router.get("/getPosts/:neighbourCode", async(req, res) => {
+
+  try{
+    const neighbourCode = req.params.neighbourCode;
+
+    const posts = await PostModel.find({neighbourCode});
+
+    res.status(200).json(posts);
+
+  } catch(error) {
+
+    console.log(error.message);
+    res.status(500).send("Server Error")
+  }
+  
+});
+
 // Get post by id
 router.get("/getPost/:postId", async (req, res) => {
   try {
@@ -43,7 +61,7 @@ router.post("/create", async (req, res) => {
     lat,
     long,
     publisherId,
-    neighbourhoodId,
+    neighbourCode,
     date,
     time,
     severity,
@@ -60,7 +78,7 @@ router.post("/create", async (req, res) => {
       lat,
       long,
       publisherId,
-      neighbourhoodId,
+      neighbourCode,
       date,
       time,
       severity,

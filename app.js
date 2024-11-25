@@ -32,6 +32,8 @@ app.use("/api/user", require("./routes/user"));
 
 app.use("/api/post", middleware, require("./routes/post"));
 
+app.use("/api/neighbourhood", middleware, require("./routes/neighbourhood"));
+
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
