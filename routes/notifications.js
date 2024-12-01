@@ -9,11 +9,25 @@ router.get("/list/:neighbourCode", async (req, res) => {
     const neighbourCode = req.params.neighbourCode;
 
     // Sort by recent -> old
-    const notifications = await NotificationModel.find({ neighbourCode }).sort({
-      createdAt: -1,
+    const notifications = await NotificationModel.find({ neighbourCode })
+      .sort({
+        createdAt: -1,
+      })
+      .lean();
+
+    const updatedNotifications = notifications.map((notifyItem) => {
+      let isReadByUser = "false";
+
+      const readUserIds = notifyItem.readUserIds.map((userId) =>
+        userId.toString()
+      );
+
+      if (readUserIds.includes(req.userId)) isReadByUser = "true";
+
+      return { isReadByUser, ...notifyItem };
     });
 
-    res.status(200).json(notifications);
+    res.status(200).json(updatedNotifications);
   } catch (error) {
     console.log(error.message);
     res.status(500).send("Server error");
