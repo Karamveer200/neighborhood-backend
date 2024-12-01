@@ -1,8 +1,8 @@
 var express = require("express");
 var router = express.Router();
-var asyncHandler = require("express-async-handler");
 
 const PostModel = require("../models/post.model");
+const NotificationModel = require("../models/notifications.model");
 
 // Get all posts
 router.get("/list", async (_, res) => {
@@ -18,21 +18,17 @@ router.get("/list", async (_, res) => {
 });
 
 // Get all posts by neighbourCode
-router.get("/getPosts/:neighbourCode", async(req, res) => {
-
-  try{
+router.get("/getPosts/:neighbourCode", async (req, res) => {
+  try {
     const neighbourCode = req.params.neighbourCode;
 
-    const posts = await PostModel.find({neighbourCode});
+    const posts = await PostModel.find({ neighbourCode });
 
     res.status(200).json(posts);
-
-  } catch(error) {
-
+  } catch (error) {
     console.log(error.message);
-    res.status(500).send("Server Error")
+    res.status(500).send("Server Error");
   }
-  
 });
 
 // Get post by id
@@ -67,6 +63,7 @@ router.post("/create", async (req, res) => {
     severity,
     status,
     category,
+    imageId,
   } = req.body;
 
   const comments = [];
@@ -85,10 +82,22 @@ router.post("/create", async (req, res) => {
       status,
       category,
       comments,
+      imageId,
     };
 
     const createdPost = await new PostModel(postData);
+
     await createdPost.save();
+
+    const notification = await new NotificationModel({
+      postId: createdPost._id,
+      neighbourCode,
+      title,
+      imageId: createdPost.imageId ?? null,
+      message: "A new post has been added",
+    });
+
+    await notification.save();
 
     res.status(200).json(createdPost);
   } catch (error) {
@@ -110,7 +119,18 @@ router.put("/updateStatus/:postId", async (req, res) => {
     }
 
     post.status = status;
+
     await post.save();
+
+    const notification = await new NotificationModel({
+      postId: post._id,
+      title: post.title,
+      neighbourCode: post.neighbourCode,
+      imageId: post.imageId ?? null,
+      message: `Issue has been marked as ${status}`,
+    });
+
+    await notification.save();
 
     res.status(200).json(post);
   } catch (error) {
@@ -123,7 +143,7 @@ router.put("/updateStatus/:postId", async (req, res) => {
 router.put("/addComment/:postId", async (req, res) => {
   try {
     const postId = req.params.postId;
-    const { comment } = req.body;
+    let { comment } = req.body;
 
     const post = await PostModel.findById(postId);
 
@@ -139,6 +159,18 @@ router.put("/addComment/:postId", async (req, res) => {
 
     post.comments.unshift(newComment);
     await post.save();
+
+    const trimmedNewComment = comment.slice(0, 20);
+
+    const notification = await new NotificationModel({
+      postId: post._id,
+      title: post.title,
+      neighbourCode: post.neighbourCode,
+      imageId: post.imageId ?? null,
+      message: `A new comment has been added '${trimmedNewComment}...'`,
+    });
+
+    await notification.save();
 
     res.status(200).json(post);
   } catch (error) {

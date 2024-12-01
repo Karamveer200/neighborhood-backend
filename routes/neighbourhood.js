@@ -1,6 +1,5 @@
 var express = require("express");
 var router = express.Router();
-var asyncHandler = require("express-async-handler");
 
 var NeighbourhoodModel = require("../models/neighbourhood.model");
 const neighbourhoodModel = require("../models/neighbourhood.model");
@@ -28,7 +27,7 @@ router.post("/create", async (req, res) => {
   const { name, kind, adminId, description, geoFence } = req.body;
 
   const neighbourCode = generateUniqueId(5);
-  const members = [adminId];
+  const members = [{ memberId: adminId }];
 
   try {
     const neighbourhoodData = {

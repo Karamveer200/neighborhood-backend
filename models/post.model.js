@@ -12,6 +12,9 @@ const PostSchema = mongoose.Schema({
   severity: { type: String },
   status: { type: String },
   category: { type: String },
+  imageId: {
+    type: String,
+  },
   comments: [
     {
       username: { type: String },
