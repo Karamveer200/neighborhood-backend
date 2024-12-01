@@ -160,7 +160,7 @@ router.put("/addComment/:postId", async (req, res) => {
     post.comments.unshift(newComment);
     await post.save();
 
-    const trimmedNewComment = comment.slice(0, 100);
+    const trimmedNewComment = comment.slice(0, 70);
 
     const notification = await new NotificationModel({
       postId: post._id,
