@@ -3,6 +3,7 @@ var router = express.Router();
 
 const PostModel = require("../models/post.model");
 const NotificationModel = require("../models/notifications.model");
+const { default: mongoose } = require("mongoose");
 
 // Get all posts
 router.get("/list", async (_, res) => {
@@ -41,6 +42,11 @@ router.get("/getPost/:postId", async (req, res) => {
     if (!post) {
       return res.status(404).send("Post Not Found");
     }
+
+    await NotificationModel.updateMany(
+      { postId: new mongoose.Types.ObjectId(postId) },
+      { $addToSet: { readUserIds: req.userId } }
+    );
 
     return res.json(post);
   } catch (error) {
