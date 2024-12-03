@@ -1,15 +1,15 @@
 var express = require("express");
 var router = express.Router();
 
-var NeighbourhoodModel = require("../models/neighbourhood.model");
 const neighbourhoodModel = require("../models/neighbourhood.model");
 
 // Get neighbourhood by code
 router.get("/getNeighbourhood/:neighbourCode", async (req, res) => {
   try {
     const neighbourCode = req.params.neighbourCode;
+    console.log(neighbourCode);
 
-    const neighbourhood = await PostModel.find(neighbourCode);
+    const neighbourhood = await neighbourhoodModel.findOne({ neighbourCode });
 
     if (!neighbourhood) {
       return res.status(404).send("Neighbourhood Not Found");
@@ -51,20 +51,76 @@ router.post("/create", async (req, res) => {
 
 //Add member to neighbourhood
 router.put("/addMember/:neighbourCode", async (req, res) => {
-  try {
-    const neighbourCode = req.params.neighbourCode;
-    const { memberId } = req.body;
+  const neighbourCode = req.params.neighbourCode;
+  const { memberId } = req.body;
 
-    const neighbourhood = await NeighbourhoodModel.find(neighbourCode);
+  try {
+    const neighbourhood = await neighbourhoodModel.findOne({ neighbourCode });
 
     if (!neighbourhood) {
       return res.status(404).send("Neighbourhood Not Found");
     }
 
-    neighbourhood.members.unshift(memberId);
-    await neighbourhood.save();
+    const members = neighbourhood.members;
+    members.push({ memberId });
 
-    res.status(200).json(neighbourhood);
+    const result = await neighbourhoodModel.findOneAndUpdate(
+      { neighbourCode },
+      { members }
+    )
+
+    res.status(200).send("Member Added");
+
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send("Server Error");
+  }
+});
+
+// Remove member from neighbourhood
+router.put("/removeMember/:neighbourCode", async (req, res) => {
+  const neighbourCode = req.params.neighbourCode;
+  const { memberId } = req.body;
+
+  try {
+    const neighbourhood = await neighbourhoodModel.findOne({ neighbourCode });
+
+    if (!neighbourhood) {
+      return res.status(404).send("Neighbourhood Not Found");
+    }
+
+    const members = neighbourhood.members;
+    const newMembers = members.filter((member) => member.memberId != memberId);
+
+    const result = await neighbourhoodModel.findOneAndUpdate(
+      { neighbourCode },
+      { members: newMembers }
+    )
+
+    res.status(200).send("Member Removed");
+
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send("Server Error");
+  }
+});
+
+// Get members of neighbourhood
+router.get("/getMembers/:neighbourCode", async (req, res) => {
+  const neighbourCode = req.params.neighbourCode;
+
+  try {
+    const neighbourhood = await neighbourhood
+      .findOne({ neighbourCode })
+      .populate("members.memberId");
+
+    if (!neighbourhood) {
+      return res.status(404).send("Neighbourhood Not Found");
+    }
+
+    const members = neighbourhood.members;
+    res.status(200).json(members);
+
   } catch (error) {
     console.log(error.message);
     res.status(500).send("Server Error");
